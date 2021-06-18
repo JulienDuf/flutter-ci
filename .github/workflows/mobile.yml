@@ -1,0 +1,78 @@
+name: Mobile CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  android:
+    name: Android QA
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate build number
+        uses: einaregilsson/build-number@v3
+        with:
+          token: ${{secrets.github_token}}
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/setup-java@v1.4.3
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v1.4.0
+        with:
+          channel: "stable"
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Decoding keystore
+        run: ../.github/scripts/generate_key_properties.sh
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      - name: Build APK
+        run: flutter build apk --no-tree-shake-icons --flavor qa -t lib/main_qa.dart --build-number $BUILD_NUMBER
+
+  ios:
+    name: iOS QA
+    runs-on: macos-latest
+
+    steps:
+      - name: Generate build number
+        uses: einaregilsson/build-number@v3
+        with:
+          token: ${{secrets.github_token}}
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/setup-java@v1.4.3
+        with:
+          java-version: "12.x"
+      - uses: subosito/flutter-action@v1.4.0
+        with:
+          channel: "stable"
+      - name: Use Node.js
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: 12.x
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Build App
+        run: flutter build ios --no-tree-shake-icons --release --flavor qa -t lib/main_qa.dart --no-codesign --build-number $BUILD_NUMBER
+      - name: Decoding Google Cloud keys
+        run: ../.github/scripts/generate_match_key.sh
+        working-directory: ios
+        env:
+          MATCH_GCP_KEY_B64: ${{ secrets.MATCH_GCP_KEY_B64 }}
+      - name: Decoding App Store Connect api key
+        run: ../.github/scripts/generate_api_key.sh
+        working-directory: ios
+        env:
+          API_KEY_B64: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+      - name: Package IPA
+        uses: maierj/fastlane-action@v2.0.0
+        with:
+          lane: qa
+          subdirectory: ios
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}

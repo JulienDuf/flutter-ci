@@ -1,4 +1,4 @@
-package com.example.flutter_ci
+package io.recursyve.flutter.ci
 
 import io.flutter.embedding.android.FlutterActivity
 

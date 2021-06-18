@@ -30,3 +30,9 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+api_key.json
+gc_keys.json
+Runner.app
+Runner.app.*
+Runner.ipa

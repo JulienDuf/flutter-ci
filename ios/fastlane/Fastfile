@@ -1,0 +1,54 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Get certificates"
+    lane :load_cert do
+      match(
+        type: "development",
+        api_key_path: "api_key.json"
+      )
+    end
+
+    desc "Package QA"
+      keychain_name = "fastlane.keychain"
+      lane :qa do
+        create_keychain(
+          name: keychain_name,
+          password: ENV["MATCH_PASSWORD"],
+          default_keychain: true,
+          unlock: true,
+          timeout: 3600,
+          add_to_search_list: true
+        )
+
+        match(
+          keychain_name: keychain_name,
+          keychain_password: ENV["MATCH_PASSWORD"],
+          app_identifier: "io.recursyve.flutter.ci",
+          type: "adhoc",
+          force_for_new_devices: true,
+          api_key_path: "api_key.json"
+        )
+        build_ios_app(
+          configuration: "Release",
+          export_method: "ad-hoc",
+          workspace: "Runner.xcworkspace",
+          include_symbols: true
+        )
+    end
+end

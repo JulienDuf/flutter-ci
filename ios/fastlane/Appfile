@@ -1,0 +1,8 @@
+app_identifier("io.recursyve.flutter.ci") # The bundle identifier of your app
+apple_id("julien@recursyve.io") # Your Apple email address
+
+itc_team_id("122650562") # App Store Connect Team ID
+team_id("S9H56HBN29") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
