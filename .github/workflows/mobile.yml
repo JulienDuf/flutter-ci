@@ -33,7 +33,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
       - name: Build APK
-        run: flutter build apk --no-tree-shake-icons --flavor qa -t lib/main_qa.dart --build-number $BUILD_NUMBER
+        run: flutter build apk --no-tree-shake-icons --build-number $BUILD_NUMBER
 
   ios:
     name: iOS QA
@@ -58,7 +58,7 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
       - name: Build App
-        run: flutter build ios --no-tree-shake-icons --release --flavor qa -t lib/main_qa.dart --no-codesign --build-number $BUILD_NUMBER
+        run: flutter build ios --no-tree-shake-icons --release --no-codesign --build-number $BUILD_NUMBER
       - name: Decoding Google Cloud keys
         run: ../.github/scripts/generate_match_key.sh
         working-directory: ios
